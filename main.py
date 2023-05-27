@@ -4,6 +4,7 @@ from snake import Snake
 from food import Food
 from scoreboard import Scoreboard
 import time
+from tkinter import Button
 
 # Create and setup a screen for game
 screen = Screen()
@@ -24,54 +25,74 @@ screen.onkey(snake.down, "Down")
 screen.onkey(snake.left, "Left")
 screen.onkey(snake.right, "Right")
 
-# Turn on the game to proceed
-game_is_on = True
-# While the game is in process
-while game_is_on:
-    # Update the screen with 0.1 seconds delay
-    screen.update()
-    time.sleep(0.1)
-    # Move the snake on screen forward
-    snake.move()
 
-    # Detect collision with special food
+def restart():
+    button.place_forget()
+    score_board.reset_state()
+    snake.reset_state()
+    # If the special diet is visible
     if food.special_diet.isvisible():
-        if snake.head.distance(food.special_diet) < 15:
-            score_board.special_update()
-            snake.extend()
-            food.hide_special_diet()
+        # Then hide the special diet
+        food.hide_special_diet()
+    play()
 
-    # Detect Collision with food
-    if snake.head.distance(food) < 15:
-        food.refresh()
-        score_board.update()
-        snake.extend()
-        snake.special_diet += 1
-        
-        # If the special diet is visible
+canvas = screen.getcanvas()
+button = Button(canvas.master, text="Restart", command=restart)
+
+
+def play():
+    # Turn on the game to proceed
+    game_is_on = True
+    # While the game is in process
+    while game_is_on:
+        # Update the screen with 0.1 seconds delay
+        screen.update()
+        time.sleep(0.1)
+        # Move the snake on screen forward
+        snake.move()
+
+        # Detect collision with special food
         if food.special_diet.isvisible():
-            # Then hide the special diet
-            food.hide_special_diet()
-        
-        # Display the special diet every 5th time
-        if snake.special_diet % 5 == 0:
-            food.show_special_diet()
+            if snake.head.distance(food.special_diet) < 15:
+                score_board.special_update()
+                snake.extend()
+                food.hide_special_diet()
+
+        # Detect Collision with food
+        if snake.head.distance(food) < 15:
+            food.refresh()
+            score_board.increment_score()
+            snake.extend()
+            snake.special_diet += 1
+            
+            # If the special diet is visible
+            if food.special_diet.isvisible():
+                # Then hide the special diet
+                food.hide_special_diet()
+            
+            # Display the special diet every 5th time
+            if snake.special_diet % 5 == 0:
+                food.show_special_diet()
 
 
-    # Detect collision with wall
-    if (
-        snake.head.xcor() > 290
-        or snake.head.xcor() < -300
-        or snake.head.ycor() > 300
-        or snake.head.ycor() < -280
-    ):
-        game_is_on = False
-        score_board.game_over()
-
-    # Detect collision with body
-    for segment in snake.segments[1:]:
-        if snake.head.distance(segment) < 10:
-            game_is_on = False
+        # Detect collision with wall
+        if (
+            snake.head.xcor() > 290
+            or snake.head.xcor() < -290
+            or snake.head.ycor() > 290
+            or snake.head.ycor() < -280
+        ):
             score_board.game_over()
+            game_is_on = False
+            button.place(x=10, y=10)
 
+
+        # Detect collision with body
+        for segment in snake.segments[1:]:
+            if snake.head.distance(segment) < 10:
+                score_board.game_over()
+                game_is_on = False
+                button.place(x=10, y=10)
+
+play()
 screen.exitonclick()

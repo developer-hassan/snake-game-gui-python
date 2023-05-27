@@ -93,4 +93,15 @@ class Snake:
         Calls the add_segment method with the position of last segment of snake
         """
         self.add_segment(self.segments[-1].position())
-    
+
+    def reset_state(self):
+        """
+        Deletes the existing turtle from the screen and initialize the snake again.
+        """
+        for segment in self.segments:
+            segment.hideturtle()
+        self.segments.clear()
+        self.create_snake()
+        self.head = self.segments[0]
+        self.head.shape("triangle")
+        self.special_diet = 0
